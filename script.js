@@ -1,54 +1,39 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // 1. KUNIN ANG REFERRAL ID MULA SA URL (?d=33 o ?ref=33)
+  // 1. Basahin ang Promo / Referral Code sa URL (halimbawa: ?promo=AYC4255C0FD3FC o ?d=33)
   const urlParams = new URLSearchParams(window.location.search);
-  
-  // Isusuri kung 'd' o 'ref' ang ginamit sa URL
-  const referralId = urlParams.get('d') || urlParams.get('ref');
+  const promoCode = urlParams.get('promo') || urlParams.get('ref') || urlParams.get('d');
 
-  if (referralId) {
-    document.getElementById('referralCode').value = referralId;
-    console.log("Referral ID detected:", referralId);
+  if (promoCode) {
+    document.getElementById('promoCode').value = promoCode;
+    document.getElementById('referralDisplay').textContent = promoCode;
   } else {
-    console.log("No referral ID found in URL.");
+    document.getElementById('referralDisplay').textContent = "None";
   }
 
-  // 2. PAG-SUBMIT NG FORM
+  // 2. Submit Handler
   const form = document.getElementById('registerForm');
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
+    const finalPromoCode = document.getElementById('promoCode').value;
 
     if (password !== confirmPassword) {
-      alert("Hindi magkatugma ang Password at Re-enter Password!");
+      alert("Passwords do not match!");
       return;
     }
 
-    // Kolektahin ang datos para ipadala sa iyong backend server/database
-    const formData = {
-      account: document.getElementById('username').value,
+    const payload = {
+      username: username,
+      email: email,
       password: password,
-      securityQuestion: document.getElementById('securityQuestion').value,
-      securityAnswer: document.getElementById('securityAnswer').value,
-      email: document.getElementById('emailUser').value + document.getElementById('emailDomain').value,
-      emailCode: document.getElementById('emailCode').value,
-      referralBy: document.getElementById('referralCode').value // Dito papasok ang Referral ID!
+      promoCode: finalPromoCode
     };
 
-    console.log("Data to send to backend:", formData);
-    alert(`Registration Successful!\nReferred by ID: ${formData.referralBy || 'None'}`);
-
-    /*
-      HALIMBAWA SA PHP / BACKEND API (Fetch Call):
-      
-      fetch('register_process.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-      .then(res => res.json())
-      .then(data => alert(data.message));
-    */
+    console.log("Data to register:", payload);
+    alert(`Account created successfully!\nReferral Used: ${finalPromoCode || 'None'}`);
   });
 });
